@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Spoon WebSocket テスト（ログイン済み）</title>
+<style>
+body{background:#111;color:#eee;font-family:monospace;padding:20px;max-width:800px}
+input{width:400px;padding:8px;background:#222;color:#eee;border:1px solid #444;margin:4px 0}
+button{padding:8px 16px;margin:4px;background:#5a3a8a;color:white;border:none;cursor:pointer;border-radius:4px}
+button:hover{background:#7c3aed}
+pre{background:#1a1a1a;padding:12px;border-radius:8px;min-height:80px;max-height:300px;overflow-y:auto;white-space:pre-wrap}
+.section{margin:16px 0;padding:12px;border:1px solid #333;border-radius:8px}
+h3{color:#a78bfa;margin:0 0 8px 0}
+.ok{color:#34d399}.err{color:#f87171}.warn{color:#fbbf24}
+</style>
+</head>
+<body>
+<h2>🔌 Spoon WebSocket テスト</h2>
+
+<div class="section">
+  <h3>Step 1: ログインしてroom_tokenを取得</h3>
+  <p>配信URLを入力してください：</p>
+  <input id="liveUrl" value="https://www.spooncast.net/jp/live/@2oy297yn" style="width:500px">
+  <br>
+  <button onclick="getToken()">🔑 room_token取得</button>
+  <pre id="tokenOut">待機中...</pre>
+</div>
+
+<div class="section">
+  <h3>Step 2: WebSocket接続テスト</h3>
+  <input id="liveId" placeholder="live_id（自動入力）" style="width:200px">
+  <input id="token" placeholder="room_token（自動入力）" style="width:300px">
+  <br>
+  <button onclick="connectWS()">🔌 WebSocket接続</button>
+  <button onclick="disconnectWS()">切断</button>
+  <pre id="wsOut">待機中...</pre>
+</div>
+
+<script>
+let ws = null;
+
+function log(id, msg, cls) {
+  const el = document.getElementById(id);
+  const line = document.createElement('div');
+  line.className = cls || '';
+  line.textContent = `[${new Date().toTimeString().slice(0,8)}] ${msg}`;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
+async function getToken() {
+  const url = document.getElementById("liveUrl").value.trim();
+  document.getElementById("tokenOut").innerHTML = "";
+  log("tokenOut", "APIにアクセス中...");
+
+  try {
+    // usernameからuser_id取得
+    const nameMatch = url.match(/\/@?([A-Za-z0-9_]+)/);
+    if (!nameMatch) { log("tokenOut", "❌ URLが正しくありません", "err"); return; }
+    const username = nameMatch[1];
+
+    const pd = await fetch(`https://jp-api.spooncast.net/profiles/${username}/`, {
+      headers: { "Accept": "application/json", "Origin": "https://www.spooncast.net" },
+      credentials: "include"  // ← Cookieを送る
+    });
+    const pdata = await pd.json();
+    const uid = (pdata.results||[])[0]?.user_id || (pdata.results||[])[0]?.id;
+    log("tokenOut", `✅ user_id: ${uid}`);
+
+    // live_id取得
+    const ld = await fetch(`https://jp-api.spooncast.net/users/${uid}/live/`, {
+      headers: { "Accept": "application/json", "Origin": "https://www.spooncast.net" },
+      credentials: "include"
+    });
+    const ldata = await ld.json();
+    const liveId = (ldata.results||[])[0]?.current_live_id;
+    log("tokenOut", `✅ live_id: ${liveId}`);
+    document.getElementById("liveId").value = liveId;
+
+    // ライブ詳細からroom_token取得
+    const lv = await fetch(`https://jp-api.spooncast.net/lives/${liveId}/`, {
+      headers: { "Accept": "application/json", "Origin": "https://www.spooncast.net" },
+      credentials: "include"
+    });
+    const lvdata = await lv.json();
+    const live = (lvdata.results||[])[0];
+    const token = live?.room_token;
+    const wsServer = live?.system?.server;
+
+    log("tokenOut", `✅ room_token: ${token}`);
+    log("tokenOut", `✅ WSサーバー: ${wsServer}`);
+
+    if (token) {
+      document.getElementById("token").value = token;
+      log("tokenOut", "🎉 room_token取得成功！Step2に進んでください", "ok");
+    } else {
+      log("tokenOut", "⚠️ room_tokenがnullです（ログインが必要かもしれません）", "warn");
+    }
+
+  } catch(e) {
+    log("tokenOut", `❌ エラー: ${e.message}`, "err");
+  }
+}
+
+function connectWS() {
+  const liveId = document.getElementById("liveId").value.trim();
+  const token  = document.getElementById("token").value.trim();
+  document.getElementById("wsOut").innerHTML = "";
+
+  const wsUrl = `wss://jp-hala.spooncast.net/${liveId}`;
+  log("wsOut", `接続試行: ${wsUrl}`);
+
+  try {
+    ws = new WebSocket(wsUrl);
+
+    ws.onopen = () => {
+      log("wsOut", "✅ WebSocket接続成功！", "ok");
+      // 認証メッセージを送信
+      if (token) {
+        const authMsg = JSON.stringify({ type: "AUTH", token: token });
+        ws.send(authMsg);
+        log("wsOut", `📤 認証送信: ${authMsg}`);
+      }
+    };
+
+    ws.onmessage = (e) => {
+      log("wsOut", `📩 受信: ${e.data.slice(0, 200)}`);
+    };
+
+    ws.onerror = (e) => {
+      log("wsOut", `❌ エラー: ${e.type}`, "err");
+    };
+
+    ws.onclose = (e) => {
+      log("wsOut", `切断: code=${e.code} reason=${e.reason || "なし"}`);
+    };
+
+  } catch(e) {
+    log("wsOut", `❌ 例外: ${e.message}`, "err");
+  }
+}
+
+function disconnectWS() {
+  if (ws) { ws.close(); ws = null; }
+}
+</script>
+</body>
+</html>
