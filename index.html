@@ -22,8 +22,7 @@ header h1{font-family:'DotGothic16',monospace;font-size:1.1rem;
   -webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;transition:all .3s}
 .dot.on{background:var(--accent3);box-shadow:0 0 8px var(--accent3);animation:blink 1.4s infinite}
-.dot.err{background:var(--danger)}
-.dot.loading{background:var(--warn);animation:blink .6s infinite}
+.dot.err{background:var(--danger)}.dot.loading{background:var(--warn);animation:blink .6s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 .spk{display:none;align-items:center;gap:4px;font-size:.7rem;color:var(--accent3);margin-left:auto}
 .spk.show{display:flex}
@@ -35,17 +34,14 @@ header h1{font-family:'DotGothic16',monospace;font-size:1.1rem;
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px}
 .ct{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);margin-bottom:8px}
 input[type=text]{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;
-  color:var(--text);font-family:inherit;font-size:.9rem;padding:9px 12px;outline:none;-webkit-appearance:none;transition:border-color .2s}
+  color:var(--text);font-family:inherit;font-size:.9rem;padding:9px 12px;outline:none;-webkit-appearance:none}
 input[type=text]:focus{border-color:var(--accent2)}
 input[type=text]::placeholder{color:var(--text2)}
-.btn{border:none;border-radius:8px;font-family:inherit;font-weight:700;cursor:pointer;
-  transition:all .15s;padding:10px 16px;font-size:.85rem}
+.btn{border:none;border-radius:8px;font-family:inherit;font-weight:700;cursor:pointer;transition:all .15s;padding:10px 16px;font-size:.85rem}
 .btn:active{transform:scale(.96)}
-.btn-p{background:var(--accent);color:#fff}
-.btn-d{background:#5a1d1d;color:var(--danger)}
+.btn-p{background:var(--accent);color:#fff}.btn-d{background:#5a1d1d;color:var(--danger)}
 .btn-g{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
-.btn-f{width:100%;padding:12px}
-.btn-s{padding:6px 10px;font-size:.78rem}
+.btn-f{width:100%;padding:12px}.btn-s{padding:6px 10px;font-size:.78rem}
 .btn:disabled{opacity:.4;pointer-events:none}
 .st{font-size:.75rem;color:var(--text2);text-align:center;margin-top:6px;min-height:16px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -68,8 +64,7 @@ input[type=text]::placeholder{color:var(--text2)}
 .ng-tag::after{content:' ×';font-weight:700}
 .al{display:flex;flex-direction:column;gap:3px;max-height:130px;overflow-y:auto}
 .ai{display:flex;align-items:center;gap:6px;font-size:.78rem;padding:2px 0}
-.ai-label{flex:1;color:var(--warn)}
-.ai-word{color:var(--text2);font-size:.7rem}
+.ai-label{flex:1;color:var(--warn)}.ai-word{color:var(--text2);font-size:.7rem}
 .at{width:10px;height:10px;border-radius:50%;border:none;cursor:pointer;flex-shrink:0}
 .at.on{background:var(--accent3)}.at.off{background:var(--border)}
 #log{display:flex;flex-direction:column;gap:4px;max-height:36dvh;overflow-y:auto;-webkit-overflow-scrolling:touch}
@@ -81,9 +76,7 @@ input[type=text]::placeholder{color:var(--text2)}
 .lb{font-size:.82rem;line-height:1.45}
 .lb.comment .nm{color:var(--accent2);font-weight:700}
 .lb.sys{color:var(--text2);font-style:italic}
-.lb.err{color:var(--danger)}
-.lb.join{color:var(--accent3)}
-.lb.aw{color:var(--warn)}
+.lb.err{color:var(--danger)}.lb.join{color:var(--accent3)}.lb.aw{color:var(--warn)}
 </style>
 </head>
 <body>
@@ -97,15 +90,16 @@ input[type=text]::placeholder{color:var(--text2)}
   </div>
 </header>
 
+<!-- サーバー接続 -->
 <div class="card">
-  <div class="ct">配信URL / @ユーザー名</div>
-  <input type="text" id="urlInput" value="@kdonion"
-         autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <div class="ct">サーバーURL（CloudflareのURLをそのまま貼る）</div>
+  <input type="text" id="serverIP" placeholder="例: https://xxxx.trycloudflare.com" value="">
   <div style="height:8px"></div>
   <button class="btn btn-p btn-f" id="mainBtn" onclick="toggle()">▶ 読み上げ開始</button>
-  <div class="st" id="st">未接続</div>
+  <div class="st" id="st">PCでserver.pyとCloudflare Tunnelを起動してURLを入力してください</div>
 </div>
 
+<!-- 音声設定 -->
 <div class="card">
   <div class="ct">音声設定</div>
   <div class="grid2">
@@ -133,6 +127,7 @@ input[type=text]::placeholder{color:var(--text2)}
   </div>
 </div>
 
+<!-- NGワード -->
 <div class="card">
   <div class="ct">NGワード</div>
   <div class="ng-row">
@@ -142,11 +137,13 @@ input[type=text]::placeholder{color:var(--text2)}
   <div class="ng-tags" id="ngt"></div>
 </div>
 
+<!-- アラートワード -->
 <div class="card">
-  <div class="ct">🔔 アラートワード（コメントより先に読み上げ）</div>
+  <div class="ct">🔔 アラートワード</div>
   <div class="al" id="al"></div>
 </div>
 
+<!-- ログ -->
 <div class="card" style="flex:1">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
     <div class="ct" style="margin:0">コメントログ</div>
@@ -156,18 +153,27 @@ input[type=text]::placeholder{color:var(--text2)}
 </div>
 
 <script>
-const BASE = "https://jp-api.spooncast.net";
-const AW = [
+const AW=[
   {w:"スプーン",l:"💰 投げ銭"},{w:"ギフト",l:"💰 ギフト"},{w:"推し",l:"💰 推し宣言"},
   {w:"初見",l:"👋 初見さん"},{w:"久しぶり",l:"👋 久しぶり"},{w:"おやすみ",l:"👋 離脱"},
   {w:"草",l:"😂 草"},{w:"笑",l:"😂 笑"},{w:"エモ",l:"😂 エモ"},
   {w:"質問",l:"🎙️ 質問"},{w:"リクエスト",l:"🎙️ リクエスト"},{w:"コラボ",l:"🎙️ コラボ希望"},
   {w:"メンバーズ",l:"🎙️ メンバーズ"},{w:"荒らし",l:"⚠️ 荒らし"},{w:"通報",l:"⚠️ 通報"},
 ];
-let running=false,polling=null,liveId=null;
-let seen=new Set(),ng=[],voices=[];
-let q=[],talking=false;
+let running=false,polling=null,lastTs=0;
+let ng=[],voices=[],q=[],talking=false;
 let ae=Object.fromEntries(AW.map(a=>[a.w,true]));
+
+function getServer(){
+  let url=document.getElementById("serverIP").value.trim();
+  if(!url)return "";
+  // IPアドレスのみ入力された場合はhttp://を付ける
+  if(!url.startsWith("http")){
+    url=`http://${url}:5000`;
+  }
+  // 末尾スラッシュを除去
+  return url.replace(/\/+$/,"");
+}
 
 // 音声
 function loadV(){
@@ -181,7 +187,7 @@ function loadV(){
 speechSynthesis.onvoiceschanged=loadV;
 setTimeout(loadV,300);
 
-// アラートリスト
+// アラート
 function renderAW(){
   document.getElementById("al").innerHTML=AW.map(a=>`
     <div class="ai">
@@ -193,52 +199,25 @@ function renderAW(){
 function tgAW(w){ae[w]=!ae[w];renderAW()}
 renderAW();
 
-// API
-async function fj(url){
-  const r=await fetch(url,{headers:{"Accept":"application/json","Origin":"https://www.spooncast.net"}});
-  if(!r.ok)throw new Error(`HTTP ${r.status}`);
-  return r.json();
-}
-async function resolveUrl(raw){
-  raw=raw.trim();
-  const im=raw.match(/\/live\/(\d+)/);if(im)return parseInt(im[1]);
-  const nm=raw.match(/\/@?([A-Za-z0-9_]+)/)||raw.match(/^@?([A-Za-z0-9_]+)$/);
-  if(!nm)throw new Error("URLまたは@ユーザー名を入力してください");
-  const un=nm[1];setSt(`👤 @${un} を検索中...`);
-  const pd=await fj(`${BASE}/profiles/${un}/`);
-  const uid=(pd.results||[])[0]?.user_id||(pd.results||[])[0]?.id;
-  if(!uid)throw new Error("ユーザーが見つかりません");
-  const ld=await fj(`${BASE}/users/${uid}/live/`);
-  const item=(ld.results||[])[0];
-  if(!item?.is_live)throw new Error("現在配信中ではありません");
-  return item.current_live_id;
-}
-
-async function fetchC(){
-  if(!liveId)return;
+// サーバーからコメント取得
+async function fetchComments(){
+  const server=getServer();
+  if(!server)return;
   try{
-    const data=await fj(`${BASE}/lives/${liveId}/messages/`).catch(()=>null);
-    if(!data)return;
-    for(const msg of(data.results||data.messages||[]).slice(-30)){
-      const au=msg.author||msg.user||{};
-      const name=(au.nickname||au.name||"").trim();
-      const text=(msg.message||msg.text||msg.content||"").trim();
-      const type=msg.type||"comment";
-      if(!text)continue;
-      const key=`${name}|||${text}`;
-      if(seen.has(key))continue;
-      seen.add(key);
-      if(seen.size>500)seen=new Set([...seen].slice(-300));
+    const r=await fetch(`${server}/comments/since/${lastTs}`,{mode:'cors'});
+    if(!r.ok)return;
+    const data=await r.json();
+    const newComments=data.comments||[];
+    for(const c of newComments){
+      if(c.ts>lastTs)lastTs=c.ts;
+      const {name,text}=c;
       if(isNG(text))continue;
-      if(type==="comment"||!type){
-        addLog(name,text,"comment");
-        procC(name,text);
-      }else if(type==="join"){
-        addLog("",`${name} が入室しました`,"join");
-        if(gc("c-jn"))enq(name?`${name}さんが来ました`:"誰かが来ました");
-      }
+      addLog(name,text,"comment");
+      procC(name,text);
     }
-  }catch(e){if(!e.message.includes("404"))addLog("",`取得エラー: ${e.message}`,"err")}
+  }catch(e){
+    // サーバー接続失敗
+  }
 }
 
 function procC(name,text){
@@ -249,7 +228,6 @@ function procC(name,text){
       enq(`アラート、${a.l}`);
     }
   }
-  // コメント読み上げ
   if(gc("c-cm")){
     if(gc("c-sk")&&text.length>40)return;
     text.split("\n").map(s=>s.trim()).filter(Boolean).forEach((p,i)=>{
@@ -260,26 +238,36 @@ function procC(name,text){
 
 async function toggle(){running?stop():await start()}
 async function start(){
-  const raw=document.getElementById("urlInput").value;
+  const server=getServer();
+  if(!server){setSt("❌ IPアドレスを入力してください");return}
   try{
-    setDot("loading");setSt("⏳ 検索中...");
+    setSt("⏳ サーバーに接続中...");setDot("loading");
     document.getElementById("mainBtn").disabled=true;
-    liveId=await resolveUrl(raw);
-    seen.clear();running=true;
-    setDot("on");setSt(`✅ 配信ID: ${liveId}`);
-    addLog("",`配信ID: ${liveId} 監視開始`,"sys");
+    // 接続確認
+    const r=await fetch(`${server}/status`,{signal:AbortSignal.timeout(10000),mode:'cors'});
+    if(!r.ok){setSt(`❌ サーバーエラー: ${r.status}`);setDot("err");document.getElementById("mainBtn").disabled=false;return}
+    const s=await r.json();
+    if(!s.running){setSt("⚠️ PCでSeleniumが起動中ではありません。少し待ってください");setDot("err");document.getElementById("mainBtn").disabled=false;return}
+    running=true;lastTs=Date.now()/1000-5; // 直近5秒のコメントから
+    setDot("on");setSt("✅ 接続成功！読み上げ中...");
+    addLog("","サーバー接続しました","sys");
     const b=document.getElementById("mainBtn");
     b.textContent="⏹ 停止";b.className="btn btn-d btn-f";b.disabled=false;
-    await fetchC();
-    polling=setInterval(fetchC,2000);
+    polling=setInterval(fetchComments,1500);
   }catch(e){
-    setDot("err");setSt(`❌ ${e.message}`);
-    addLog("",e.message,"err");
+    setDot("err");
+    let msg=e.message;
+    if(msg.includes("Failed to fetch")||msg.includes("NetworkError")){
+      msg="URLが間違っているかサーバーが停止しています";
+    }else if(msg.includes("timeout")||msg.includes("abort")){
+      msg="タイムアウト。URLを確認してください";
+    }
+    setSt(`❌ 接続失敗: ${msg}`);
     document.getElementById("mainBtn").disabled=false;
   }
 }
 function stop(){
-  running=false;clearInterval(polling);polling=null;
+  running=false;clearInterval(polling);
   speechSynthesis.cancel();q=[];talking=false;
   document.getElementById("spk").classList.remove("show");
   setDot("");setSt("停止しました");
@@ -300,11 +288,7 @@ function procQ(){
   const ja=voices.filter(v=>v.lang.startsWith("ja"));
   const list=ja.length?ja:voices;
   if(list[sel.value])u.voice=list[sel.value];
-  u.onend=u.onerror=()=>{
-    talking=false;
-    document.getElementById("spk").classList.remove("show");
-    procQ();
-  };
+  u.onend=u.onerror=()=>{talking=false;document.getElementById("spk").classList.remove("show");procQ()};
   speechSynthesis.speak(u);
 }
 
@@ -323,8 +307,7 @@ document.getElementById("ngi").addEventListener("keydown",e=>{if(e.key==="Enter"
 function addLog(name,text,type){
   const log=document.getElementById("log");
   const ts=new Date().toTimeString().slice(0,8);
-  const body=(type==="comment"&&name)
-    ?`<span class="nm">${e(name)}</span> ${e(text)}`:e(text);
+  const body=(type==="comment"&&name)?`<span class="nm">${e(name)}</span> ${e(text)}`:e(text);
   const d=document.createElement("div");
   d.className="li";
   d.innerHTML=`<span class="lt">${ts}</span><div class="lb ${type}">${body}</div>`;
